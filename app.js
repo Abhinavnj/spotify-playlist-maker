@@ -170,3 +170,7 @@ app.get('/refresh_token', (req, res) => {
 app.listen(11111, () => {
     console.log('Listening on port 11111...');
 });
+
+// Useful Links
+// https://developer.spotify.com/documentation/web-api/reference/playlists/get-a-list-of-current-users-playlists/
+// https://developer.spotify.com/documentation/web-api/reference-beta/#endpoint-replace-playlists-tracks
