@@ -70,17 +70,14 @@ app.get('/login', (req, res) => {
 // Create playlist callback
 app.get('/create', (req, res) => {
     var options = {
-        url: 'https://api.spotify.com/v1/users/abhinavnj/playlists',
+        url: 'https://api.spotify.com/v1/users/' + process.env.USERNAME + '/playlists',
         body: JSON.stringify({
-            // 'name': 'abc1',
-            // 'description': 'test',
             'name': req.query.name,
             'description': req.query.description,
             'public': false
         }),
         dataType:'json',
         headers: {
-            // 'Authorization': 'Bearer ' + req.session.accesstoken,
             'Authorization': 'Bearer ' + req.query.myAccessToken,
             'Content-Type': 'application/json',
         }
