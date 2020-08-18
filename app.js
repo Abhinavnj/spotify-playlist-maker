@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express = require('express');
 var request = require('request');
 var cors = require('cors');
@@ -7,9 +8,10 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 
 // Credentials
-var client_id = '937069d2cb8a4a38ae34f89659ace174';
-var client_secret = '256334d19f74401f933146ae37dbbcb3';
-var redirect_uri = 'http://localhost:11111/callback';
+// var client_id = '937069d2cb8a4a38ae34f89659ace174';
+var client_id = process.env.CLIENT_ID;
+var client_secret = process.env.CLIENT_SECRET;
+var redirect_uri = process.env.REDIRECT_URI;
 
 /**
  * Generates a random string containing numbers and letters
@@ -36,11 +38,11 @@ app.use(express.static(__dirname + '/public')) // Sends automatically to index.h
    .use(cors())
    .use(cookieParser())
 
-   .use(session({
-        secret: 'secret',
-        resave: true,
-        saveUninitialized: true
-    }))
+    .use(session({
+            secret: 'secret',
+            resave: true,
+            saveUninitialized: true
+        }))
    .use(bodyParser.urlencoded({ extended: true }))
    .use(bodyParser.json());
 
@@ -52,7 +54,8 @@ app.get('/login', (req, res) => {
     res.cookie(stateKey, state);
 
     // Application requests authorization
-    var scope = 'user-read-private user-read-email';
+    // var scope = 'user-read-private user-read-email';
+    var scope = 'user-follow-modify playlist-modify-private';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -65,19 +68,34 @@ app.get('/login', (req, res) => {
 });
 
 // Create playlist callback
-app.post('/create', (req, res) => {
-    // var code = req.query.code || null;
-    // var state = req.query.state || null;
-    // var storedState = req.cookies ? req.cookies[stateKey] : null;
-    console.log(req.body);
-    res.send(req.body);
+app.get('/create', (req, res) => {
+    var options = {
+        url: 'https://api.spotify.com/v1/users/abhinavnj/playlists',
+        body: JSON.stringify({
+            // 'name': 'abc1',
+            // 'description': 'test',
+            'name': req.query.name,
+            'description': req.query.description,
+            'public': false
+        }),
+        dataType:'json',
+        headers: {
+            // 'Authorization': 'Bearer ' + req.session.accesstoken,
+            'Authorization': 'Bearer ' + req.query.myAccessToken,
+            'Content-Type': 'application/json',
+        }
+    };
+    console.log(options);
+    request.post(options, function (error, response, body) {
+        // console.log(response);
+        res.send(response);
+    });
 });
 
 app.get('/callback', (req, res) => {
 
     // Application requests refresh and access tokens
     // after checking the state parameter
-
     var code = req.query.code || null;
     var state = req.query.state || null;
     var storedState = req.cookies ? req.cookies[stateKey] : null;
@@ -111,8 +129,8 @@ app.get('/callback', (req, res) => {
                     refresh_token = body.refresh_token;
 
                 var options = {
-                    // url: 'https://api.spotify.com/v1/me',
-                    url: 'https://api.spotify.com/v1/users/abhinavnj/playlists',
+                    url: 'https://api.spotify.com/v1/me',
+                    // url: 'https://api.spotify.com/v1/users/abhinavnj/playlists',
                     headers: { 'Authorization': 'Bearer ' + access_token },
                     json: true
                 };

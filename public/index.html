@@ -36,16 +36,7 @@
 
     <script id="user-profile-template" type="text/x-handlebars-template">
         <h1>Logged in as {{display_name}}</h1>
-        <div class="artist-form"></div>
-        <form action="create" method="POST">
-            <input type="text" name="artist1" placeholder="Artist 1" required>
-            <input type="text" name="artist2" placeholder="Artist 2">
-            <input type="text" name="artist3" placeholder="Artist 3">
-            <input type="text" name="artist4" placeholder="Artist 4">
-            <input type="text" name="artist5" placeholder="Artist 5">
-            <button type="submit">Submit</button>
-        </form>
-        </div>
+        
         <div class="media">
             <div class="pull-left">
                 <img class="media-object" width="150" src="{{images.0.url}}" />
@@ -64,8 +55,15 @@
         </div>
     </script>
 
-    <script id="oauth-template" type="text/x-handlebars-template"></script>
-    <!-- <script id="oauth-template" type="text/x-handlebars-template">{{access_token}}</script> -->
+    <!-- <script id="oauth-template" type="text/x-handlebars-template"></script> -->
+    <script id="oauth-template" type="text/x-handlebars-template">
+        <form action="create" method="GET">
+            <input type="text" name="name" placeholder="Playlist Name" required>
+            <input type="text" name="description" placeholder="description">
+            <input hidden type="text" name="myAccessToken" value={{access_token}}>
+            <button type="submit">Submit</button>
+        </form>
+    </script>
 
     <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
