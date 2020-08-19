@@ -78,11 +78,11 @@ app.get('/create', (req, res) => {
         }),
         dataType:'json',
         headers: {
-            'Authorization': 'Bearer ' + req.query.myAccessToken,
+            // 'Authorization': 'Bearer ' + req.query.myAccessToken,
+            'Authorization': 'Bearer ' + req.session.access_token,
             'Content-Type': 'application/json',
         }
     };
-    console.log(options);
     request.post(options, function (error, response, body) {
         // console.log(response);
         res.send(response);
@@ -124,6 +124,8 @@ app.get('/callback', (req, res) => {
 
                 var access_token = body.access_token,
                     refresh_token = body.refresh_token;
+
+                req.session.access_token = access_token;
 
                 var options = {
                     url: 'https://api.spotify.com/v1/me',
