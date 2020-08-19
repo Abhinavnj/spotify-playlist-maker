@@ -16,6 +16,11 @@
             white-space: nowrap;
             width: 500px;
         }
+
+        .form-group .control-label:after {
+            content:"*";
+            color:red;
+        }
     </style>
 </head>
 
@@ -58,9 +63,35 @@
     <!-- <script id="oauth-template" type="text/x-handlebars-template"></script> -->
     <script id="oauth-template" type="text/x-handlebars-template">
         <form action="create" method="GET">
-            <input type="text" name="name" placeholder="Playlist Name" required>
-            <input type="text" name="description" placeholder="description">
-            <input hidden type="text" name="myAccessToken" value={{access_token}}>
+            <div class="form-group">
+                <label class="control-label">Playlist Name</label><br>
+                <input type="text" name="name" placeholder="Playlist Name" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label><br>
+                <input type="text" name="description" placeholder="description">
+            </div>
+            <div class="form-group">
+                <label class="control-label">Artist 1</label><br>
+                <input type="text" name="artist1" placeholder="Enter an artist" required>
+            </div>
+            <div class="form-group">
+                <label>Artist 2</label><br>
+                <input type="text" name="artist2" placeholder="Enter an artist">
+            </div>
+            <div class="form-group">
+                <label>Artist 3</label><br>
+                <input type="text" name="artist3" placeholder="Enter an artist">
+            </div>
+            <div class="form-group">
+                <label>Artist 4</label><br>
+                <input type="text" name="artist4" placeholder="Enter an artist">
+            </div>
+            <div class="form-group">
+                <label>Artist 5</label><br>
+                <input type="text" name="artist5" placeholder="Enter an artist">
+            </div>
+            <!-- <input hidden type="text" name="myAccessToken" value={{access_token}}> -->
             <button type="submit">Submit</button>
         </form>
     </script>
