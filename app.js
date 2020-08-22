@@ -8,11 +8,11 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var sleep = require('system-sleep');
+// var sleep = require('system-sleep');
 var EventEmitter = require('events').EventEmitter;
 const fs = require('fs');
-const emitter = new EventEmitter();
-const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
+const { promisify } = require('util')
+const sleep = promisify(setTimeout)
 
 // Credentials
 // var client_id = '937069d2cb8a4a38ae34f89659ace174';
@@ -38,6 +38,13 @@ var generateRandomString = function (length) {
 var stateKey = 'spotify_auth_state';
 
 var app = express();
+
+// function msleep(n) {
+//     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
+// }
+// function sleep(n) {
+//     msleep(n * 1000);
+// }
 
 /********** USE STATEMENTS **********/
 
@@ -101,30 +108,93 @@ let getArtist = function (token) {
 }
 
 // Create playlist callback
-app.get('/create', (req, res) => {
+// app.get('/create', (req, res) => {
+async function createPlaylist(name, description, token) {
     var options = {
         url: 'https://api.spotify.com/v1/users/' + process.env.USERNAME + '/playlists',
         body: JSON.stringify({
-            'name': req.query.name,
-            'description': req.query.description,
+            'name': name,
+            'description': description,
             'public': false
         }),
         dataType: 'json',
         headers: {
             // 'Authorization': 'Bearer ' + req.query.myAccessToken,
-            'Authorization': 'Bearer ' + req.session.access_token,
+            'Authorization': 'Bearer ' + token,
             'Content-Type': 'application/json',
         }
     };
     request.post(options, function (error, response, body) {
-        // console.log(response);
-        res.send(response);
+        body = JSON.parse(response.body);
+        console.log(body["id"]);
+        var playlistID = body["id"]
+        var playlist_json = JSON.stringify({ 'playlist': playlistID });
+        playlist_json = JSON.parse(playlist_json);
+
+        fs.readFile('tracks.json', function (err, data) {
+            var json = JSON.parse(data);
+            json.push(playlist_json);
+
+            fs.writeFile('tracks.json', JSON.stringify(json), function (err, result) {
+                if (err) {
+                    console.log('error', err);
+                }
+            });
+        });
+        // res.send(response);
     });
+}
+// });
 
-    // res.redirect('/populate');
-});
+function process_id(token) {
+    fs.readFile('tracks.json', function (err, data) {
+        var json = JSON.parse(data);
+        console.log(json);
+        var playlist_id = json[json.length - 1]["playlist"];
+        var new_tracks = [];
+        for (var i = 0; i < json.length - 1; i++) {
+            new_tracks.push(json[i]["track"]);
+        }
+        populatePlaylist(playlist_id, new_tracks, token);
+    });
+}
 
-async function getID(artistList, token) {
+function populatePlaylist(playlist_id, new_tracks, token) {
+    console.log('id:', playlist_id);
+    var url = 'https://api.spotify.com/v1/playlists/' + playlist_id + '/tracks?uris=';
+    for (var j = 0; j < new_tracks.length; j++) {
+        if (j != new_tracks.length - 1) {
+            url = url + new_tracks[j] + '%2C';
+        }
+        else {
+            url = url + new_tracks[j];
+        }
+    }
+    console.log(url);
+
+    var options = {
+        url: url,
+        dataType: 'json',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    };
+    request.post(options, function (error, response, body) {
+        if (error) {
+            console.log(error);
+        }
+        console.log(response);
+    });
+    fs.writeFile('tracks.json', '[]', function (err, result) {
+        if (err) {
+            console.log('error', err);
+        }
+    });
+}
+
+function getID(artistList, token) {
     console.log(artistList);
     for (var c = 0; c < artistList.length; c++) {
         // for (var c = 0; c < 1; c++) {
@@ -155,7 +225,7 @@ async function getID(artistList, token) {
                 if (id_json["id"] != 0) {
                     json.push(id_json);
                 }
-                
+
                 fs.writeFile('output.json', JSON.stringify(json), function (err, result) {
                     if (err) {
                         console.log('error', err);
@@ -172,7 +242,7 @@ app.get('/recommendations', async (req, res) => {
     var url = 'https://api.spotify.com/v1/recommendations?';
     // URL parameters to be binded
     var params = {
-        limit: 10,
+        limit: 50,
         market: 'US',
         target_danceablity: .6,
         seed_artists: [req.query.artist1],
@@ -198,7 +268,7 @@ app.get('/recommendations', async (req, res) => {
 
     // Change artist names to ID
     getID(params.seed_artists, req.session.access_token);
-    sleep(1000);
+    await sleep(5000);
 
     // params.seed_artists[0] = '3TVXtAsR1Inumwj472S9r4';
     // params.seed_artists[1] = '246dkjvS1zLTtiykXe5h60';
@@ -214,9 +284,9 @@ app.get('/recommendations', async (req, res) => {
     }
     params.seed_artists = newArtists;
 
-    fs.writeFileSync('output.json', '[]', function (err, result) {
-        if(err) console.log('error', err);
-    });
+    // fs.writeFileSync('output.json', '[]', function (err, result) {
+    //     if(err) console.log('error', err);
+    // });
 
     // Bind paramters to URL
     for (var key in params) {
@@ -258,10 +328,41 @@ app.get('/recommendations', async (req, res) => {
             'Content-Type': 'application/json'
         }
     };
-    request.get(options, (error, response, body) => {
-        // console.log(response);
+    request.get(options, async (error, response, body) => {
+        fs.writeFileSync('output.json', '[]', function (err, result) {
+            if(err) {
+                console.log('error', err);
+            }
+        });
+        body = JSON.parse(response.body);
+        var tracks = [];
+        for (var i = 0; i < body["tracks"].length; i++) {
+            // console.log(body["tracks"]);
+            var track = body["tracks"][i]["uri"];
+            track = track.split(':').join('%3A');
+            tracks.push(track);
+        }
+        fs.readFile('tracks.json', function (err, data) {
+            var json = JSON.parse(data);
+            for (var j = 0; j < tracks.length; j++) {
+                var track_json = JSON.stringify({ 'track': tracks[j] });
+                track_json = JSON.parse(track_json);
+                json.push(track_json);
+            }
+
+            fs.writeFile('tracks.json', JSON.stringify(json), function (err, result) {
+                if (err) {
+                    console.log('error', err);
+                }
+            });
+        });
+        createPlaylist(req.query.name, req.query.description, req.session.access_token);
+        await sleep(2000);
+        process_id(req.session.access_token);
         res.send(response.body);
     });
+
+    // populatePlaylist(req.session.access_token);
 });
 
 app.get('/callback', (req, res) => {
