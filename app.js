@@ -139,7 +139,9 @@ async function createPlaylist(name, description, token) {
                 if (err) {
                     console.log('error', err);
                 }
+                process_id(token);
             });
+            
         });
         // res.send(response);
     });
@@ -185,7 +187,7 @@ function populatePlaylist(playlist_id, new_tracks, token) {
         if (error) {
             console.log(error);
         }
-        console.log(response);
+        console.log(response.body);
     });
     fs.writeFile('tracks.json', '[]', function (err, result) {
         if (err) {
@@ -354,11 +356,12 @@ app.get('/recommendations', async (req, res) => {
                 if (err) {
                     console.log('error', err);
                 }
+                createPlaylist(req.query.name, req.query.description, req.session.access_token);
             });
         });
-        createPlaylist(req.query.name, req.query.description, req.session.access_token);
-        await sleep(2000);
-        process_id(req.session.access_token);
+        // createPlaylist(req.query.name, req.query.description, req.session.access_token);
+        // await sleep(2000);
+        // process_id(req.session.access_token);
         res.send(response.body);
     });
 
@@ -457,8 +460,9 @@ app.get('/refresh_token', (req, res) => {
     });
 });
 
-app.listen(11111, () => {
-    console.log('Listening on port 11111...');
+var PORT = process.env.PORT || 11111;
+app.listen(PORT, () => {
+    console.log('Listening on port ' + PORT + '...');
 });
 
 // Useful Links
