@@ -81,6 +81,7 @@ app.get('/login', (req, res) => {
             state: state
         })
     );
+    console.log(res);
 });
 
 let getArtist = function (token) {
@@ -109,9 +110,10 @@ let getArtist = function (token) {
 
 // Create playlist callback
 // app.get('/create', (req, res) => {
-async function createPlaylist(name, description, token) {
+async function createPlaylist(name, description, username, token) {
     var options = {
-        url: 'https://api.spotify.com/v1/users/' + process.env.USERNAME + '/playlists',
+        // url: 'https://api.spotify.com/v1/users/' + process.env.USERNAME + '/playlists',
+        url: 'https://api.spotify.com/v1/users/' + username + '/playlists',
         body: JSON.stringify({
             'name': name,
             'description': description,
@@ -356,7 +358,7 @@ app.get('/recommendations', async (req, res) => {
                 if (err) {
                     console.log('error', err);
                 }
-                createPlaylist(req.query.name, req.query.description, req.session.access_token);
+                createPlaylist(req.query.name, req.query.description, req.query.username, req.session.access_token);
             });
         });
         // createPlaylist(req.query.name, req.query.description, req.session.access_token);
