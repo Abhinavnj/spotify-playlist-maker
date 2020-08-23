@@ -362,7 +362,8 @@ app.get('/recommendations', async (req, res) => {
         // createPlaylist(req.query.name, req.query.description, req.session.access_token);
         // await sleep(2000);
         // process_id(req.session.access_token);
-        res.send(response.body);
+        // res.send(response.body);
+        res.send("Check your spotify account for your playlist!");
     });
 
     // populatePlaylist(req.session.access_token);
