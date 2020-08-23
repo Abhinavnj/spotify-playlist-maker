@@ -272,7 +272,7 @@ app.get('/recommendations', async (req, res) => {
 
     // Change artist names to ID
     getID(params.seed_artists, req.session.access_token);
-    await sleep(5000);
+    await sleep(10000);
 
     // params.seed_artists[0] = '3TVXtAsR1Inumwj472S9r4';
     // params.seed_artists[1] = '246dkjvS1zLTtiykXe5h60';
