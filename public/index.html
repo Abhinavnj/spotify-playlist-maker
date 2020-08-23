@@ -57,13 +57,57 @@
                     <dt>Country</dt><dd>{{country}}</dd>
                 </dl>
             </div>
+            <form action="recommendations" method="GET">
+                <!-- <div class="form-group">
+                    <label class="control-label">Username</label><br>
+                    <input type="text" name="username" placeholder="Enter Spotify username" value="" required>
+                </div> -->
+                <div class="form-group">
+                    <label class="control-label">Playlist Name</label><br>
+                    <input type="text" name="name" placeholder="Playlist Name" value="" required>
+                </div>
+                <div class="form-group">
+                    <label>Description of your playlist</label><br>
+                    <input type="text" name="description" placeholder="Description">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Artist 1</label><br>
+                    <input type="text" name="artist1" placeholder="Enter an artist" value="" required>
+                </div>
+                <div class="form-group">
+                    <label>Artist 2</label><br>
+                    <input type="text" name="artist2" placeholder="Enter an artist" value="">
+                </div>
+                <div class="form-group">
+                    <label>Artist 3</label><br>
+                    <input type="text" name="artist3" placeholder="Enter an artist">
+                </div>
+                <div class="form-group">
+                    <label>Artist 4</label><br>
+                    <input type="text" name="artist4" placeholder="Enter an artist">
+                </div>
+                <div class="form-group">
+                    <label>Artist 5</label><br>
+                    <input type="text" name="artist5" placeholder="Enter an artist">
+                </div>
+                <div class="form-group">
+                    <label>Genre 1</label><br>
+                    <input type="text" name="genre1" placeholder="country" value="">
+                </div>
+                <div class="form-group">
+                    <label>Genre 2</label><br>
+                    <input type="text" name="genre2" placeholder="hip hop" value="">
+                </div>
+                <input type="text" name="username" value={{id}}>
+                <button type="submit">Submit</button>
+            </form>
         </div>
     </script>
 
     <!-- <script id="oauth-template" type="text/x-handlebars-template"></script> -->
     <script id="oauth-template" type="text/x-handlebars-template">
         <!-- <form action="create" method="GET"> -->
-        <form action="recommendations" method="GET">
+        <!-- <form action="recommendations" method="GET">
             <div class="form-group">
                 <label class="control-label">Username</label><br>
                 <input type="text" name="username" placeholder="Enter Spotify username" value="" required>
@@ -106,7 +150,7 @@
             </div>
             <input hidden type="text" name="myAccessToken" value={{access_token}}>
             <button type="submit">Submit</button>
-        </form>
+        </form> -->
     </script>
 
     <script type="text/javascript"
